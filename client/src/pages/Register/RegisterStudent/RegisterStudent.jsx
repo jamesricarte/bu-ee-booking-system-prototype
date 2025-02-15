@@ -37,23 +37,32 @@ const RegisterStudent = () => {
         body: JSON.stringify(studentUser),
       });
 
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || `Error: ${response.status}`);
+      }
+
       const result = await response.json();
       console.log(result);
 
-      setMessage(result.message);
-      setMessageVisibility(true);
-      setTimeout(() => {
-        setMessageVisibility(false);
-      }, 2000);
+      setMessage({ text: result.message, type: "success" });
     } catch (error) {
       console.log(error);
 
-      setMessage(error.message);
+      let errorMessage = error.message;
+
+      if (error.message === "Failed to fetch") {
+        errorMessage =
+          "Unable to connect to the server. Check your internet connection";
+      }
+
+      setMessage({ text: errorMessage, type: "error" });
+    } finally {
       setMessageVisibility(true);
 
       setTimeout(() => {
         setMessageVisibility(false);
-      }, 2000);
+      }, 5000);
     }
   };
 
@@ -158,13 +167,13 @@ const RegisterStudent = () => {
       </p>
 
       <div
-        className={`bg-white border border-gray-400 rounded-md p-3 fixed left-1/2 transform -translate-x-1/2 transition-all duration-300 ease-in-out ${
+        className={`text-white rounded-md p-3 fixed left-1/2 transform -translate-x-1/2 transition-all duration-300 ease ${
           messageVisibility
             ? "top-12 opacity-100 pointer-events-auto"
             : "-top-24 opacity-0 pointer-events-none"
-        }`}
+        } ${message?.type === "success" ? "bg-green-400" : "bg-red-400"}`}
       >
-        <p>{message}</p>
+        <p>{message?.text}</p>
       </div>
     </main>
   );
