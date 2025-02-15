@@ -1,0 +1,21 @@
+import React from "react";
+import { Routes, Route } from "react-router-dom";
+import "./styles/App.css";
+import Login from "./pages/Login/Login";
+import LoginStudent from "./pages/Login/LoginStudent/LoginStudent";
+import Register from "./pages/Register/Register";
+import RegisterStudent from "./pages/Register/RegisterStudent/RegisterStudent";
+
+const App = () => {
+  return (
+    <Routes>
+      <Route path="/" element={<Login />}></Route>
+      <Route path="/login" element={<Login />}></Route>
+      <Route path="/login/student" element={<LoginStudent />}></Route>
+      <Route path="/register" element={<Register />}></Route>
+      <Route path="/register/student" element={<RegisterStudent />}></Route>
+    </Routes>
+  );
+};
+
+export default App;
