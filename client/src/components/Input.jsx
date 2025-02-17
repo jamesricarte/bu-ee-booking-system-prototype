@@ -6,16 +6,19 @@ const Input = ({
   name,
   value,
   required,
+  placeholder,
   onChange,
+  width = "w-72",
   additionalClassName,
 }) => {
   return (
     <input
-      className={`border border-solid border-gray-500 rounded-md p-1 ${additionalClassName}`}
+      className={`${width} border border-solid border-gray-400 rounded-md p-2 ${additionalClassName}`}
       type={type}
       value={value}
       id={id}
       name={name}
+      placeholder={placeholder}
       required={required}
       onChange={onChange}
     />

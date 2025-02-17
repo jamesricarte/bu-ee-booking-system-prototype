@@ -6,6 +6,49 @@ const router = express.Router();
 
 router.get("/", (req, res) => {});
 
+router.post("/login", async (req, res) => {
+  const user = req.body;
+  try {
+    if (
+      Object.values(user).includes("") ||
+      Object.values(user).includes(null) ||
+      Object.values(user).includes(undefined)
+    ) {
+      return res.status(400).json({ message: "All fields are required!" });
+    }
+
+    const role = user.role === "student" ? "student" : "professor";
+
+    const idColumn = user.role === "student" ? "studentId" : "schoolId";
+    const checkUser = `SELECT * FROM  ${role}user WHERE ${idColumn} = ?`;
+    db.query(checkUser, [user.schoolId], async (err, results) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+
+      if (results.length === 0) {
+        return res
+          .status(400)
+          .json({ message: `Invalid ${role} ID or password` });
+      }
+
+      const fetchedUser = results[0];
+
+      const passwordMatch = await bcrypt.compare(
+        user.password,
+        fetchedUser.password
+      );
+      if (passwordMatch) {
+        res.status(200).json({ message: "Login Successfull!", fetchedUser });
+      } else {
+        res.status(401).json({ message: `Your password is incorrect.` });
+      }
+    });
+  } catch (error) {
+    res.status(500).json(error.message);
+  }
+});
+
 router.post("/register", async (req, res) => {
   const user = req.body;
   try {
@@ -46,7 +89,7 @@ router.post("/register", async (req, res) => {
       if (result.length > 0) {
         return res.status(400).json({
           exists: true,
-          message: "The used school Id was already registered.",
+          message: "This school Id was already registered.",
         });
       }
 
@@ -117,6 +160,56 @@ router.post("/register", async (req, res) => {
           );
         }
       });
+    });
+  } catch (error) {
+    res.status(500).json(error.message);
+  }
+});
+
+router.post("/checkUser", async (req, res) => {
+  const user = req.body;
+
+  try {
+    if (
+      Object.values(user).includes("") ||
+      Object.values(user).includes(null) ||
+      Object.values(user).includes(undefined)
+    ) {
+      return res.status(400).json({ message: "All fields are required!" });
+    }
+
+    const role = user.role === "student" ? "student" : "professor";
+    const idColumn = user.role === "student" ? "studentId" : "schooId";
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const studentIdRegex = /^[a-zA-Z0-9]+$/;
+
+    let columnName = "";
+    if (emailRegex.test(user.emailOrStudentId)) {
+      columnName = "email";
+    } else if (studentIdRegex.test(user.emailOrStudentId)) {
+      columnName = idColumn;
+    } else {
+      return res
+        .status(400)
+        .json({ message: `Invalid email or ${role} ID format.` });
+    }
+
+    const checkUser = `SELECT * FROM  ${role}user WHERE ${columnName} = ?`;
+    db.query(checkUser, [user.emailOrStudentId], async (err, results) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+
+      if (results.length === 0) {
+        return res
+          .status(400)
+          .json({ message: "Account is not yet registered" });
+      }
+
+      const fetchedUser = results[0];
+
+      res.status(200).json({ message: "Account was found." });
     });
   } catch (error) {
     res.status(500).json(error.message);

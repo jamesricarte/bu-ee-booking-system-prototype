@@ -1,13 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Input from "../../../components/Input";
+import Button from "../../../components/Button";
 import { Link } from "react-router-dom";
 import { IoArrowBack } from "react-icons/io5";
+import { Eye, EyeOff } from "lucide-react";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 const RegisterStudent = () => {
   const [message, setMessage] = useState(null);
   const [messageVisibility, setMessageVisibility] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const messageTimeoutRef = useRef(null);
 
   const [studentUser, setStudentUser] = useState({
     schoolId: "",
@@ -28,6 +33,16 @@ const RegisterStudent = () => {
   const registerUser = async (e) => {
     e.preventDefault();
 
+    setShowPassword(false);
+    setLoading(true);
+
+    if (messageTimeoutRef.current) {
+      clearTimeout(messageTimeoutRef.current);
+    }
+
+    const startTime = Date.now();
+    let message = { text: "", type: "" };
+
     try {
       const response = await fetch(`${API_URL}/api/register`, {
         method: "POST",
@@ -39,13 +54,20 @@ const RegisterStudent = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || `Error: ${response.status}`);
+        throw new Error(
+          errorData.message ||
+            `${
+              response.status === 500
+                ? "Error: Can't access the server"
+                : `Error: ${response.status} ${response.statusText}`
+            }`
+        );
       }
 
       const result = await response.json();
       console.log(result);
 
-      setMessage({ text: result.message, type: "success" });
+      message = { text: result.message, type: "success" };
     } catch (error) {
       console.log(error);
 
@@ -56,13 +78,20 @@ const RegisterStudent = () => {
           "Unable to connect to the server. Check your internet connection";
       }
 
-      setMessage({ text: errorMessage, type: "error" });
+      message = { text: errorMessage, type: "error" };
     } finally {
-      setMessageVisibility(true);
+      const elapsedTime = Date.now() - startTime;
+      const minimumTime = 2000;
 
       setTimeout(() => {
-        setMessageVisibility(false);
-      }, 5000);
+        setMessage(message);
+        setLoading(false);
+        setMessageVisibility(true);
+
+        messageTimeoutRef.current = setTimeout(() => {
+          setMessageVisibility(false);
+        }, 4000);
+      }, Math.max(0, minimumTime - elapsedTime));
     }
   };
 
@@ -76,49 +105,53 @@ const RegisterStudent = () => {
         </Link>
       </div>
       <form className="flex flex-col gap-3" onSubmit={registerUser}>
-        <div className="flex flex-col">
-          <label htmlFor="studentId">Student ID:</label>
-          <Input
-            type="text"
-            id="studentId"
-            name="schoolId"
-            value={studentUser.schoolId}
-            required={true}
-            onChange={handleStudentUserInput}
-          />
+        <div className="flex gap-3">
+          <div className="flex flex-col">
+            <label htmlFor="studentId">Student ID:</label>
+            <Input
+              type="text"
+              id="studentId"
+              name="schoolId"
+              value={studentUser.schoolId}
+              required={true}
+              onChange={handleStudentUserInput}
+            />
+          </div>
+          <div className="flex flex-col">
+            <label htmlFor="firstName">First Name:</label>
+            <Input
+              type="text"
+              id="firstName"
+              name="firstName"
+              value={studentUser.firstName}
+              required={true}
+              onChange={handleStudentUserInput}
+            />
+          </div>
         </div>
-        <div className="flex flex-col">
-          <label htmlFor="firstName">First Name:</label>
-          <Input
-            type="text"
-            id="firstName"
-            name="firstName"
-            value={studentUser.firstName}
-            required={true}
-            onChange={handleStudentUserInput}
-          />
-        </div>
-        <div className="flex flex-col">
-          <label htmlFor="lastName">Last Name:</label>
-          <Input
-            type="text"
-            id="lastName"
-            name="lastName"
-            value={studentUser.lastName}
-            required={true}
-            onChange={handleStudentUserInput}
-          />
-        </div>
-        <div className="flex flex-col">
-          <label htmlFor="course">Course:</label>
-          <Input
-            type="text"
-            id="course"
-            name="course"
-            value={studentUser.course}
-            required={true}
-            onChange={handleStudentUserInput}
-          />
+        <div className="flex gap-3">
+          <div className="flex flex-col">
+            <label htmlFor="lastName">Last Name:</label>
+            <Input
+              type="text"
+              id="lastName"
+              name="lastName"
+              value={studentUser.lastName}
+              required={true}
+              onChange={handleStudentUserInput}
+            />
+          </div>
+          <div className="flex flex-col">
+            <label htmlFor="course">Course:</label>
+            <Input
+              type="text"
+              id="course"
+              name="course"
+              value={studentUser.course}
+              required={true}
+              onChange={handleStudentUserInput}
+            />
+          </div>
         </div>
         <div className="flex flex-col">
           <label htmlFor="email">Email:</label>
@@ -131,49 +164,71 @@ const RegisterStudent = () => {
             onChange={handleStudentUserInput}
           />
         </div>
-        <div className="flex flex-col">
-          <label htmlFor="password">Password:</label>
-          <Input
-            type="password"
-            id="password"
-            name="password"
-            value={studentUser.password}
-            required={true}
-            onChange={handleStudentUserInput}
-          />
+        <div className="flex gap-3">
+          <div className="flex flex-col">
+            <label htmlFor="password">Password:</label>
+            <div className="relative w-full">
+              <Input
+                type={showPassword ? "text" : "password"}
+                id="password"
+                name="password"
+                value={studentUser.password}
+                required={true}
+                onChange={handleStudentUserInput}
+              />
+
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-3 flex items-center text-gray-600 cursor-pointer"
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+          </div>
+          <div className="flex flex-col">
+            <label htmlFor="confirmPassword">Confirm Password:</label>
+            <Input
+              type={showPassword ? "text" : "password"}
+              id="confirmPassword"
+              name="confirmPassword"
+              value={studentUser.confirmPassword}
+              required={false}
+              onChange={handleStudentUserInput}
+            />
+          </div>
         </div>
-        <div className="flex flex-col">
-          <label htmlFor="confirmPassword">Confirm Password:</label>
-          <Input
-            type="password"
-            id="confirmPassword"
-            name="confirmPassword"
-            value={studentUser.confirmPassword}
-            required={false}
-            onChange={handleStudentUserInput}
-          />
-        </div>
-        <Input
-          additionalClassName="bg-green-300 border-0 text-white cursor-pointer"
-          type="submit"
-          value="Register"
-        ></Input>
+        <Button type="submit">Register</Button>
       </form>
       <p className="mt-12">
         Already have an account?{" "}
-        <Link className="text-green-300" to="/login">
+        <Link className="text-green-400 hover:opacity-40" to="/login/student">
           Login here
         </Link>
       </p>
 
       <div
-        className={`text-white rounded-md p-3 fixed left-1/2 transform -translate-x-1/2 transition-all duration-300 ease ${
+        className={`text-white rounded-md p-3 fixed left-1/2 transform -translate-x-1/2 transition-all duration-700 ease ${
           messageVisibility
-            ? "top-12 opacity-100 pointer-events-auto"
+            ? "top-6 opacity-70 pointer-events-auto"
             : "-top-24 opacity-0 pointer-events-none"
         } ${message?.type === "success" ? "bg-green-400" : "bg-red-400"}`}
       >
         <p>{message?.text}</p>
+      </div>
+
+      <div
+        className={`${
+          loading
+            ? "pointer-events-auto opacity-50"
+            : "pointer-events-none opacity-0"
+        } fixed top-0 left-0 w-full h-full flex justify-center items-center bg-white`}
+      >
+        <div
+          className={`${
+            loading ? "animate-spin" : ""
+          } rounded-full h-6 w-6 border-4 border-green-400 border-t-transparent`}
+        ></div>
       </div>
     </main>
   );
