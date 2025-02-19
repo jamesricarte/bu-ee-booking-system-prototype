@@ -1,7 +1,7 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Input from "../../../components/Input";
 import Button from "../../../components/Button";
-import { Link } from "react-router-dom";
+import { Link, replace, useLocation, useNavigate } from "react-router-dom";
 import { IoArrowBack } from "react-icons/io5";
 import { Eye, EyeOff } from "lucide-react";
 
@@ -13,6 +13,8 @@ const LoginStudent = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const messageTimeoutRef = useRef(null);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const [userLogin, setUserLogin] = useState({
     schoolId: "",
@@ -20,9 +22,26 @@ const LoginStudent = () => {
     role: "student",
   });
 
+  useEffect(() => {
+    detectChangedPassword();
+  }, [location]);
+
   const handleUserLoginInput = (e) => {
     const { name, value } = e.target;
     setUserLogin({ ...userLogin, [name]: value });
+  };
+
+  const detectChangedPassword = () => {
+    if (location.state?.message) {
+      setMessageVisibility(true);
+      setMessage({ text: location.state.message, type: "success" });
+
+      navigate(location.pathname, { replace: true, state: {} });
+
+      setTimeout(() => {
+        setMessageVisibility(false);
+      }, [4000]);
+    }
   };
 
   const logInUser = async (e) => {

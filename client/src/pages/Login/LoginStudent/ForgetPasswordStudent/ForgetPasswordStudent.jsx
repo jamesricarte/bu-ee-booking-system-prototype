@@ -33,6 +33,7 @@ const ForgetPasswordStudent = () => {
     }
 
     const startTime = Date.now();
+    let result;
     let message = { text: "", type: "" };
 
     try {
@@ -56,7 +57,7 @@ const ForgetPasswordStudent = () => {
         );
       }
 
-      const result = await response.json();
+      result = await response.json();
       console.log(result);
 
       message = { text: result.message, type: "success" };
@@ -77,7 +78,9 @@ const ForgetPasswordStudent = () => {
 
       setTimeout(() => {
         if (message.type === "success") {
-          navigate("/login/student/account/verification");
+          navigate(
+            `/login/student/account/verification?email=${result.fetchedUser.email}&id=${result.fetchedUser.studentId}`
+          );
         }
         setMessage(message);
         setLoading(false);
