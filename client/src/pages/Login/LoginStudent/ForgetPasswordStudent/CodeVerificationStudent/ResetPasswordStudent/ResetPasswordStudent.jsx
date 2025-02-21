@@ -130,7 +130,7 @@ const ResetPasswordStudent = () => {
               onClick={() => setShowPassword(!showPassword)}
               className="absolute inset-y-0 right-3 flex items-center text-gray-600 cursor-pointer"
             >
-              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              {showPassword ? <Eye size={16} /> : <EyeOff size={16} />}
             </button>
           </div>
           <label htmlFor="confirmPassword">Confirm Password:</label>
@@ -149,7 +149,7 @@ const ResetPasswordStudent = () => {
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
               className="absolute inset-y-0 right-3 flex items-center text-gray-600 cursor-pointer"
             >
-              {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              {showConfirmPassword ? <Eye size={16} /> : <EyeOff size={16} />}
             </button>
           </div>
         </div>

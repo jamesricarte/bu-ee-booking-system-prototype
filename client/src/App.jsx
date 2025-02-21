@@ -8,6 +8,9 @@ import CodeVerificationStudent from "./pages/Login/LoginStudent/ForgetPasswordSt
 import ResetPasswordStudent from "./pages/Login/LoginStudent/ForgetPasswordStudent/CodeVerificationStudent/ResetPasswordStudent/ResetPasswordStudent";
 import Register from "./pages/Register/Register";
 import RegisterStudent from "./pages/Register/RegisterStudent/RegisterStudent";
+import Dashboard from "./pages/Dashboard/Dashboard";
+import ProtectedRoute from "./components/ProtectedRoute";
+import RoomDetails from "./pages/RoomDetails/RoomDetails";
 
 const App = () => {
   return (
@@ -29,6 +32,15 @@ const App = () => {
       ></Route>
       <Route path="/register" element={<Register />}></Route>
       <Route path="/register/student" element={<RegisterStudent />}></Route>
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        }
+      ></Route>
+      <Route path="/bookings/room/" element={<RoomDetails />}></Route>
     </Routes>
   );
 };

@@ -6,6 +6,7 @@ const Button = ({
   hover = "hover:opacity-70",
   type,
   value,
+  onClick,
   additionalClassName,
 }) => {
   return (
@@ -13,6 +14,7 @@ const Button = ({
       className={`${backgroundColor} text-white p-1 rounded-md cursor-pointer ${hover} ${additionalClassName}`}
       type={type}
       value={value}
+      onClick={onClick}
     >
       {children}
     </button>

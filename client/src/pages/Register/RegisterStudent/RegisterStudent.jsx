@@ -12,6 +12,7 @@ const RegisterStudent = () => {
   const [messageVisibility, setMessageVisibility] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const messageTimeoutRef = useRef(null);
 
   const [studentUser, setStudentUser] = useState({
@@ -182,20 +183,30 @@ const RegisterStudent = () => {
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute inset-y-0 right-3 flex items-center text-gray-600 cursor-pointer"
               >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                {showPassword ? <Eye size={16} /> : <EyeOff size={16} />}
               </button>
             </div>
           </div>
           <div className="flex flex-col">
             <label htmlFor="confirmPassword">Confirm Password:</label>
-            <Input
-              type={showPassword ? "text" : "password"}
-              id="confirmPassword"
-              name="confirmPassword"
-              value={studentUser.confirmPassword}
-              required={false}
-              onChange={handleStudentUserInput}
-            />
+            <div className="relative w-full">
+              <Input
+                type={showConfirmPassword ? "text" : "password"}
+                id="confirmPassword"
+                name="confirmPassword"
+                value={studentUser.confirmPassword}
+                required={false}
+                onChange={handleStudentUserInput}
+              />
+
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute inset-y-0 right-3 flex items-center text-gray-600 cursor-pointer"
+              >
+                {showConfirmPassword ? <Eye size={16} /> : <EyeOff size={16} />}
+              </button>
+            </div>
           </div>
         </div>
         <Button type="submit">Register</Button>

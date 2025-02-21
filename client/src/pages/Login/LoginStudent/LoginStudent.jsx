@@ -4,6 +4,7 @@ import Button from "../../../components/Button";
 import { Link, replace, useLocation, useNavigate } from "react-router-dom";
 import { IoArrowBack } from "react-icons/io5";
 import { Eye, EyeOff } from "lucide-react";
+import { useAuth } from "../../../context/AuthContext";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -15,6 +16,7 @@ const LoginStudent = () => {
   const messageTimeoutRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
+  const { login } = useAuth();
 
   const [userLogin, setUserLogin] = useState({
     schoolId: "",
@@ -55,6 +57,7 @@ const LoginStudent = () => {
     }
 
     const startTime = Date.now();
+    let result;
     let message = { text: "", type: "" };
 
     try {
@@ -78,7 +81,7 @@ const LoginStudent = () => {
         );
       }
 
-      const result = await response.json();
+      result = await response.json();
       console.log(result);
 
       message = { text: result.message, type: "success" };
@@ -98,6 +101,10 @@ const LoginStudent = () => {
       const minimumTime = 2000;
 
       setTimeout(() => {
+        if (message.type === "success") {
+          login(result.fetchedUser);
+          navigate("/dashboard");
+        }
         setMessage(message);
         setLoading(false);
         setMessageVisibility(true);
@@ -147,7 +154,7 @@ const LoginStudent = () => {
               onClick={() => setShowPassword(!showPassword)}
               className="absolute inset-y-0 right-3 flex items-center text-gray-600 cursor-pointer"
             >
-              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              {showPassword ? <Eye size={16} /> : <EyeOff size={16} />}
             </button>
           </div>
         </div>
